@@ -1,6 +1,10 @@
 const { Schema, model } = require("mongoose");
+const Joi = require("joi");
+
 const { handleMongooseError } = require("../helpers");
-const { schemas } = require("../schemas/contacts");
+
+
+const phoneRegexp = /^\(\d{3}\) \d{3}-\d{4}$/;
 
 const contactSсhema = new Schema(
   {
@@ -14,21 +18,82 @@ const contactSсhema = new Schema(
     },
     phone: {
       type: String,
-      match: [
-        schemas.dataRegexp,
-        "Invalid phone number format. Please fill a valid phone number (000) 000-0000.",
-      ],
       required: [true, "Set phone for contact"],
     },
     favorite: {
       type: Boolean,
       default: false,
     },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+    },
   },
   { versionKey: false, timestamps: true }
 );
+
+const addSchema = Joi.object({
+  name: Joi.string()
+    .min(3)
+    .max(25)
+    .required()
+    .messages({ "any.required": "missing required name field" }),
+
+  email: Joi.string()
+    .trim()
+    .email()
+    .required()
+    .messages({ "any.required": "missing required email field" }),
+
+  phone: Joi.string()
+    .pattern(new RegExp(phoneRegexp))
+    .required()
+    .messages({
+      messages:
+        "Invalid phone number format. Please fill a valid phone number (000) 000-0000.",
+    }),
+
+  favorite: Joi.boolean(),
+});
+
+
+const addUpdSchema = Joi.object({
+  name: Joi.string()
+    .min(3)
+    .max(25)
+    .messages({ "any.required": "missing required name field" }),
+
+  email: Joi.string()
+    .trim()
+    .email()
+    .messages({ "any.required": "missing required email field" }),
+
+  phone: Joi.string()
+    .pattern(new RegExp(phoneRegexp))
+    .messages({
+      messages:
+        "Invalid phone number format. Please fill a valid phone number (000) 000-0000.",
+    }),
+   
+  favorite: Joi.boolean(),
+});
+
+
+const favoriteSchema = Joi.object({
+  favorite: Joi.boolean()
+    .required()
+    .messages({ "any.required": "missing required field favorite" }),
+});
+
+
 contactSсhema.post("save", handleMongooseError);
 
 const Contact = model("contact", contactSсhema);
 
-module.exports = { Contact };
+const schemas = {
+  addSchema,
+  addUpdSchema,
+  favoriteSchema
+};
+
+module.exports = { Contact, schemas};
