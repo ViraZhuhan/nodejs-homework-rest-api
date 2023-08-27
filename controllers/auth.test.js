@@ -21,7 +21,7 @@ describe("test login", () => {
 
 // eslint-disable-next-line no-undef
   test("user must be logged in", async () => {
-    const res = await request(app).post("/api/auth/login").send({
+    const res = await request(app).post("/api/users/login").send({
       password: "123456",
       email: "test@gmail.com",
     });
@@ -32,7 +32,7 @@ describe("test login", () => {
 
 // eslint-disable-next-line no-undef
   test("should return a token", async () => {
-    const res = await request(app).post("/api/auth/login").send({
+    const res = await request(app).post("/api/users/login").send({
       password: "123456",
       email: "test@gmail.com",
     });
@@ -44,7 +44,7 @@ describe("test login", () => {
 
 // eslint-disable-next-line no-undef
   test("should return a user object with email address and subscription as a string", async () => {
-    const res = await request(app).post("/api/auth/login").send({
+    const res = await request(app).post("/api/users/login").send({
       password: "123456",
       email: "test@gmail.com",
     });
